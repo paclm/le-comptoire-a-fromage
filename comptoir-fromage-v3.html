@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Le Comptoir à Fromage | Ondres</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+/* ============================================================
+   VARIABLES & RESET
+   ============================================================ */
+:root {
+  --cream:       #FDFBF6;
+  --cream-mid:   #EFE4CE;
+  --cream-dark:  #D9C9B0;
+  --gold:        #C9A84C;
+  --gold-light:  #E2C47A;
+  --gold-pale:   #F0D98C;
+  --wood-dark:   #1A0F07;
+  --wood-mid:    #2E1A0E;
+  --text-dark:   #2B1A10;
+  --text-light:  #FDFBF6;
+  --green-sage:  #4A5C47;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  background-color: var(--cream);
+  color: var(--text-dark);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Grain papier très subtil */
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   BANNIÈRE DÉMO
+   ============================================================ */
+.demo-banner {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+  background: rgba(20, 12, 5, 0.92);
+  border-bottom: 1px solid rgba(201, 168, 76, 0.4);
+  backdrop-filter: blur(8px);
+  text-align: center; padding: 9px 20px;
+  font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--gold-light);
+  font-family: 'DM Sans', sans-serif; font-weight: 400;
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+nav {
+  position: fixed; top: 36px; left: 0; right: 0; z-index: 900;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 24px 6%; transition: all 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+nav.solid {
+  background: rgba(20, 10, 5, 0.88);
+  backdrop-filter: blur(18px);
+  padding: 14px 6%;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.25);
+}
+.logo-wrap { text-decoration: none; display: flex; flex-direction: column; gap: 2px; }
+.logo-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700; font-size: 1.55rem;
+  color: var(--text-light);
+  letter-spacing: 0.01em;
+}
+.logo-sub {
+  font-size: 0.7rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--gold);
+  font-weight: 300;
+}
+
+.nav-links { display: flex; gap: 36px; align-items: center; }
+.nav-links a {
+  font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(253,251,246,0.7); text-decoration: none;
+  transition: color 0.25s;
+  font-weight: 400;
+}
+.nav-links a:hover { color: var(--gold-light); }
+
+.nav-cta {
+  font-size: 0.8rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+  border: 1px solid var(--gold); color: var(--gold); padding: 11px 26px;
+  border-radius: 999px;
+  text-decoration: none; transition: all 0.3s ease; background: transparent;
+}
+.nav-cta:hover {
+  background: var(--gold); color: var(--wood-dark);
+  box-shadow: 0 0 25px rgba(201,168,76,0.3);
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero {
+  height: 100vh; min-height: 700px;
+  position: relative; display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: -15%; z-index: 0;
+  background: url('https://images.unsplash.com/photo-1452195100486-9cc805987862?w=1920&q=85') center/cover no-repeat;
+}
+.hero-overlay {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(
+    160deg,
+    rgba(10,5,2,0.55) 0%,
+    rgba(10,5,2,0.72) 60%,
+    rgba(10,5,2,0.92) 100%
+  );
+}
+/* Vignette sur les bords */
+.hero-vignette {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  box-shadow: inset 0 0 120px rgba(0,0,0,0.6);
+}
+
+.hero-content {
+  position: relative; z-index: 2;
+  text-align: center; max-width: 860px; padding: 0 24px;
+  padding-top: 60px;
+}
+
+.hero-eyebrow {
+  font-size: 0.78rem; letter-spacing: 0.35em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 28px;
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  opacity: 0; /* GSAP */
+}
+.hero-eyebrow::before,
+.hero-eyebrow::after {
+  content: ''; display: block; width: 40px; height: 1px; background: var(--gold); opacity: 0.6;
+}
+
+/* Titre masqué pour animation char-by-char */
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: clamp(3rem, 6.5vw, 6.2rem);
+  color: var(--text-light);
+  line-height: 1.08;
+  margin-bottom: 28px;
+  letter-spacing: -0.01em;
+}
+.hero-title .word { display: inline-block; overflow: hidden; margin-right: 0.25em; }
+.hero-title .char { display: inline-block; transform: translateY(110%); }
+
+.hero-subtitle {
+  font-size: 1.1rem; color: rgba(239,228,206,0.82); font-weight: 300;
+  margin-bottom: 46px; letter-spacing: 0.04em;
+  line-height: 1.7;
+  opacity: 0; /* GSAP */
+}
+
+.hero-btn {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: var(--gold); color: var(--wood-dark);
+  padding: 16px 38px; border-radius: 999px;
+  font-size: 0.85rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+  text-decoration: none; transition: all 0.35s ease;
+  box-shadow: 0 8px 30px rgba(201,168,76,0.35);
+  opacity: 0; /* GSAP */
+}
+.hero-btn:hover {
+  background: var(--gold-pale);
+  box-shadow: 0 12px 40px rgba(201,168,76,0.5);
+  transform: translateY(-3px);
+}
+.hero-btn svg { transition: transform 0.3s; }
+.hero-btn:hover svg { transform: translateX(4px); }
+
+.hero-scroll {
+  position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%); z-index: 2;
+  color: rgba(201,168,76,0.7); font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  opacity: 0; /* GSAP */
+}
+.scroll-line {
+  width: 1px; height: 52px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: scrollDown 2.2s ease infinite;
+}
+@keyframes scrollDown {
+  0%   { transform: scaleY(0); transform-origin: top; opacity: 1; }
+  45%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
+  46%  { transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+}
+
+/* ============================================================
+   MARQUEE (bandeau défilant)
+   ============================================================ */
+.marquee-strip {
+  background: var(--wood-dark);
+  border-top: 1px solid rgba(201,168,76,0.2);
+  border-bottom: 1px solid rgba(201,168,76,0.2);
+  padding: 20px 0; overflow: hidden;
+  display: flex; white-space: nowrap;
+}
+.marquee-track {
+  display: flex; animation: marqueeScroll 30s linear infinite;
+  will-change: transform;
+}
+.marquee-item {
+  font-size: 0.78rem; letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--gold); padding: 0 44px;
+  display: flex; align-items: center; gap: 44px;
+  font-weight: 400;
+}
+.marquee-item::after { content: '◆'; font-size: 0.45rem; opacity: 0.45; }
+@keyframes marqueeScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ============================================================
+   SECTION HISTOIRE
+   ============================================================ */
+.story {
+  padding: 130px 6%;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center;
+  background:
+    linear-gradient(rgba(30, 16, 6, 0.72), rgba(22, 11, 4, 0.78)),
+    url('https://images.unsplash.com/photo-1519710164239-da123dc3eb17?w=1920&q=85') center/cover fixed;
+  position: relative;
+}
+/* Séparateur doré haut/bas */
+.story::before,
+.story::after {
+  content: ''; position: absolute; left: 0; right: 0; height: 2px;
+  background: linear-gradient(to right, transparent, rgba(201,168,76,0.35), transparent);
+  pointer-events: none;
+}
+.story::before { top: 0; }
+.story::after  { bottom: 0; }
+
+/* Planche de bois signature */
+.story-board {
+  position: relative;
+  background:
+    linear-gradient(135deg, rgba(10,5,2,0.55) 0%, rgba(18,10,4,0.65) 100%),
+    url('https://images.unsplash.com/photo-1546484396-fb3fc6f95f98?w=1400&q=90') center/cover;
+  padding: 72px 58px;
+  border-radius: 6px;
+  box-shadow:
+    0 50px 90px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    inset 0 0 0 1px rgba(201,168,76,0.18);
+  color: var(--text-light);
+  overflow: hidden;
+}
+/* Coin décoratif */
+.story-board::before {
+  content: '';
+  position: absolute; top: 20px; left: 20px; right: 20px; bottom: 20px;
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 3px; pointer-events: none;
+}
+.story-ornament {
+  color: var(--gold); font-size: 2.2rem; margin-bottom: 24px;
+  font-family: 'Playfair Display', serif; font-style: italic;
+  opacity: 0.7; letter-spacing: 0.08em;
+}
+.story-board h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.9rem; line-height: 1.12;
+  color: var(--gold-light); margin-bottom: 28px;
+  text-shadow: 0 3px 12px rgba(0,0,0,0.5);
+}
+.story-board p {
+  font-size: 1.05rem; line-height: 1.82; margin-bottom: 20px;
+  color: rgba(253,251,246,0.88);
+  font-weight: 300;
+}
+.story-board p:last-of-type { margin-bottom: 0; }
+
+.story-photo {
+  width: 100%; height: 680px;
+  overflow: hidden; border-radius: 6px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.22);
+  position: relative;
+}
+.story-photo::after {
+  content: ''; position: absolute; inset: 0;
+  box-shadow: inset 0 0 60px rgba(0,0,0,0.15);
+  border-radius: 6px;
+}
+.story-photo img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.9s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.story-photo:hover img { transform: scale(1.04); }
+
+/* ============================================================
+   CARROUSEL D'IMAGES (scroll continu)
+   ============================================================ */
+.carousel-strip {
+  padding: 70px 0;
+  background: var(--wood-dark);
+  overflow: hidden;
+  position: relative;
+}
+.carousel-strip::before,
+.carousel-strip::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 180px; z-index: 2; pointer-events: none;
+}
+.carousel-strip::before { left: 0; background: linear-gradient(to right, var(--wood-dark), transparent); }
+.carousel-strip::after  { right: 0; background: linear-gradient(to left, var(--wood-dark), transparent); }
+
+.carousel-track {
+  display: flex; gap: 20px;
+  animation: carouselScroll 40s linear infinite;
+  will-change: transform;
+}
+.carousel-track:hover { animation-play-state: paused; }
+
+.carousel-slide {
+  flex-shrink: 0; width: 320px; height: 220px;
+  border-radius: 6px; overflow: hidden;
+  border: 1px solid rgba(201,168,76,0.15);
+  position: relative;
+}
+.carousel-slide img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.5s ease;
+  filter: brightness(0.88) saturate(0.95);
+}
+.carousel-slide:hover img {
+  transform: scale(1.06);
+  filter: brightness(1) saturate(1.1);
+}
+/* Label flottant sur la slide */
+.slide-label {
+  position: absolute; bottom: 14px; left: 14px;
+  background: rgba(20,12,5,0.75); backdrop-filter: blur(6px);
+  color: var(--gold-light); font-size: 0.7rem; letter-spacing: 0.18em;
+  text-transform: uppercase; padding: 6px 14px; border-radius: 999px;
+  border: 1px solid rgba(201,168,76,0.3);
+  opacity: 0; transition: opacity 0.3s;
+}
+.carousel-slide:hover .slide-label { opacity: 1; }
+
+@keyframes carouselScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ============================================================
+   SECTION RAYONS
+   ============================================================ */
+.rayons {
+  padding: 130px 6%;
+  background:
+    linear-gradient(rgba(15,8,4,0.84), rgba(15,8,4,0.91)),
+    url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1920&q=80') center/cover fixed;
+  color: var(--text-light);
+}
+
+.section-header { text-align: center; margin-bottom: 80px; }
+.section-header .eyebrow {
+  font-size: 0.73rem; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 18px; display: block;
+  font-weight: 400;
+}
+.section-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.4rem, 4vw, 3.8rem);
+  color: var(--text-light); line-height: 1.12;
+}
+.section-header h2 em {
+  font-style: italic; color: var(--gold-light);
+}
+.section-sep {
+  width: 60px; height: 1px; background: var(--gold);
+  margin: 24px auto 0; opacity: 0.5;
+}
+
+.rayons-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;
+}
+
+.rayon-card {
+  background: var(--cream); border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.55);
+  transition: transform 0.42s cubic-bezier(0.25,0.46,0.45,0.94),
+              box-shadow 0.42s ease;
+  cursor: default;
+}
+.rayon-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 40px 60px rgba(0,0,0,0.7);
+}
+
+.rayon-img-wrap {
+  height: 280px; overflow: hidden; position: relative;
+}
+.rayon-img-wrap::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, rgba(10,5,2,0.35) 100%);
+}
+.rayon-img-wrap img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
+  filter: saturate(0.9);
+}
+.rayon-card:hover .rayon-img-wrap img {
+  transform: scale(1.07);
+  filter: saturate(1.05);
+}
+
+.rayon-body {
+  padding: 40px 36px;
+  background: var(--cream);
+  border-top: 3px solid var(--gold);
+  text-align: center;
+}
+.rayon-icon {
+  font-size: 2rem; margin-bottom: 14px; display: block;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+}
+.rayon-body h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem; margin-bottom: 14px; color: #3A2010;
+  line-height: 1.15;
+}
+.rayon-body p {
+  font-size: 0.97rem; line-height: 1.72; color: #6B4228;
+  margin-bottom: 26px; font-weight: 300;
+}
+.rayon-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid rgba(58,32,16,0.3); color: #3A2010;
+  padding: 9px 22px; border-radius: 999px;
+  font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase;
+  font-weight: 500; transition: all 0.28s;
+}
+.rayon-card:hover .rayon-tag {
+  background: #3A2010; color: var(--cream);
+  border-color: #3A2010;
+}
+
+/* ============================================================
+   SECTION CHIFFRES / AMBIANCE
+   ============================================================ */
+.stats {
+  padding: 100px 6%;
+  background:
+    linear-gradient(rgba(12,6,2,0.68), rgba(12,6,2,0.72)),
+    url('https://images.unsplash.com/photo-1510906594845-bc082582c8cc?w=1920&q=80') center/cover fixed;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+  border-top: 1px solid rgba(201,168,76,0.2);
+  border-bottom: 1px solid rgba(201,168,76,0.2);
+  position: relative;
+}
+.stat-item {
+  text-align: center; padding: 70px 40px;
+  border-right: 1px solid rgba(201,168,76,0.15);
+  position: relative;
+  transition: background 0.4s ease;
+}
+.stat-item:hover {
+  background: rgba(201,168,76,0.06);
+}
+.stat-item:last-child { border-right: none; }
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3.2rem, 5vw, 5.2rem);
+  color: var(--gold-light); line-height: 1;
+  margin-bottom: 14px;
+  font-weight: 700;
+  text-shadow: 0 4px 20px rgba(201,168,76,0.3);
+}
+.stat-label {
+  font-size: 0.75rem; letter-spacing: 0.26em; text-transform: uppercase;
+  color: rgba(239,228,206,0.55);
+  font-weight: 400;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  background:
+    linear-gradient(rgba(8,4,2,0.94), rgba(8,4,2,0.97)),
+    url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1920&q=80') center/cover;
+  color: var(--cream);
+  padding: 100px 6% 48px;
+  border-top: 2px solid rgba(201,168,76,0.3);
+}
+
+.footer-inner {
+  display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 60px;
+  margin-bottom: 70px;
+}
+.footer-brand .f-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem; color: var(--gold);
+  margin-bottom: 6px; display: block;
+}
+.footer-brand .f-sub {
+  font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(201,168,76,0.6); margin-bottom: 22px; display: block;
+}
+.footer-brand p {
+  font-size: 0.95rem; line-height: 1.75; color: rgba(239,228,206,0.65);
+  max-width: 300px; font-weight: 300;
+}
+
+.footer-col h4 {
+  font-size: 0.72rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 22px; font-weight: 500;
+}
+.footer-col p, .footer-col address {
+  font-size: 0.93rem; line-height: 1.85; color: rgba(239,228,206,0.65);
+  font-style: normal; font-weight: 300;
+}
+
+.footer-sep { width: 100%; height: 1px; background: rgba(201,168,76,0.12); margin-bottom: 28px; }
+.footer-bottom {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.78rem; color: rgba(253,251,246,0.28);
+  letter-spacing: 0.08em;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 960px) {
+  nav { top: 36px; }
+  .nav-links { display: none; }
+  .story { grid-template-columns: 1fr; gap: 40px; }
+  .story-photo { height: 400px; }
+  .story-board { padding: 48px 32px; }
+  .story-board h2 { font-size: 2.2rem; }
+  .stats { grid-template-columns: 1fr; gap: 0; }
+  .stat-item { border-right: none; border-bottom: 1px solid rgba(42,26,14,0.1); padding: 40px; }
+  .footer-inner { grid-template-columns: 1fr; gap: 40px; }
+  .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+}
+
+@media (max-width: 600px) {
+  .demo-banner { font-size: 0.65rem; padding: 8px; }
+  .hero-title { font-size: 2.5rem; }
+  nav { padding: 16px 5%; }
+  .story { padding: 70px 5%; }
+  .rayons { padding: 70px 5%; }
+  .carousel-slide { width: 240px; height: 165px; }
+  .story-board { padding: 36px 24px; }
+  .stat-num { font-size: 2.8rem; }
+}
+
+/* ============================================================
+   UTILITAIRES GSAP
+   ============================================================ */
+.gsap-hidden { opacity: 0; }
+</style>
+</head>
+<body>
+
+<!-- BANNIÈRE DÉMO -->
+<div class="demo-banner">Site Démo</div>
+
+<!-- NAVIGATION -->
+<nav id="navbar">
+  <a href="#" class="logo-wrap">
+    <span class="logo-title">Le Comptoir à Fromage</span>
+    <span class="logo-sub">Ondres &middot; Landes</span>
+  </a>
+  <div class="nav-links">
+    <a href="#rayons">Nos Rayons</a>
+    <a href="#histoire">Notre Histoire</a>
+    <a href="#footer">Contact</a>
+  </div>
+  <a href="#rayons" class="nav-cta">Découvrir</a>
+</nav>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<header class="hero">
+  <div class="hero-bg" id="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-vignette"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow" id="hero-eyebrow">Artisans du Goût &amp; du Terroir</div>
+    <h1 class="hero-title" id="hero-title">Le Comptoir à Fromage</h1>
+    <p class="hero-subtitle" id="hero-sub">Fromages fermiers affinés, charcuteries d'exception &amp; conserverie landaise.<br>Depuis toujours, au cœur d'Ondres.</p>
+    <a href="#rayons" class="hero-btn" id="hero-btn">
+      Découvrir nos produits
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+  <div class="hero-scroll" id="hero-scroll">
+    <span>Défiler</span>
+    <div class="scroll-line"></div>
+  </div>
+</header>
+
+<!-- MARQUEE BANDEAU -->
+<div class="marquee-strip">
+  <div class="marquee-track" id="marquee-track">
+    <div class="marquee-item">Fromages Fermiers</div>
+    <div class="marquee-item">Affinés sur Planches</div>
+    <div class="marquee-item">Charcuterie Artisanale</div>
+    <div class="marquee-item">Terroir Gascon & Basque</div>
+    <div class="marquee-item">Conserverie Landaise</div>
+    <div class="marquee-item">Producteurs Locaux</div>
+    <div class="marquee-item">Ondres &amp; Labenne</div>
+    <!-- doublon pour effet infini -->
+    <div class="marquee-item">Fromages Fermiers</div>
+    <div class="marquee-item">Affinés sur Planches</div>
+    <div class="marquee-item">Charcuterie Artisanale</div>
+    <div class="marquee-item">Terroir Gascon & Basque</div>
+    <div class="marquee-item">Conserverie Landaise</div>
+    <div class="marquee-item">Producteurs Locaux</div>
+    <div class="marquee-item">Ondres &amp; Labenne</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     HISTOIRE
+     ============================================================ -->
+<section class="story" id="histoire">
+  <div class="story-photo gsap-hidden">
+    <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1000&q=85" alt="Planche de fromages et charcuterie">
+  </div>
+  <div class="story-board gsap-hidden">
+    <div class="story-ornament">— Notre philosophie</div>
+    <h2>L'amour du Vrai.</h2>
+    <p>Au Comptoir à Fromage, nous sélectionnons chaque produit avec la même exigence que si c'était pour notre propre table. Ici, pas d'industrie : uniquement le fruit du travail d'artisans passionnés.</p>
+    <p>Découvrez nos tommes affinées sur planches d'épicéa, nos jambons de pays maturés avec soin, et nos bocaux riches du terroir gascon et basque.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     CARROUSEL PHOTOS
+     ============================================================ -->
+<div class="carousel-strip">
+  <div class="carousel-track" id="carousel-track">
+    <div class="carousel-slide">
+      <img src="https://images.unsplash.com/photo-1486297678162-ad2a14b348d5?w=700&q=80" alt="Fromage">
+      <span class="slide-label">Fromages Affinés</span>
+    </div>
+    <div class="carousel-slide">
+      <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=700&q=80" alt="Charcuterie">
+      <span class="slide-label">Charcuterie</span>
+    </div>
+    <div class="carousel-slide">
+      <img src="https://images.unsplash.com/photo-1606756790138-261d2b21cd75?w=700&q=80" alt="Conserverie">
+      <span class="slide-label">Conserverie</span>
+    </div>
+    <div class="carousel-slide">
+      <img src="https://images.unsplash.com/photo-1452195100486-9cc805987862?w=700&q=80" alt="Cheese board">
+      <span class="slide-label">Plateau Signature</span>
+    </div>
+    <div class="carousel-slide">
+      <img src="https://images.unsplash.com/photo-1559561853-08451507cbe7?w=700&q=80" alt="Jambon">
+      <span class="slide-label">Jambon de Pays</span>
+    </div>
+    <div class="carousel-slide">
+      <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=700&q=80" alt="Planche">
+      <span class="slide-label">Planche Terroir</span>
+    </div>
+    <!-- DOUBLON pour boucle infinie -->
+    <div class="carousel-slide">
+      <img src="https://images.unsplash.com/photo-1486297678162-ad2a14b348d5?w=700&q=80" alt="Fromage">
+      <span class="slide-label">Fromages Affinés</span>
+    </div>
+    <div class="carousel-slide">
+      <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=700&q=80" alt="Charcuterie">
+      <span class="slide-label">Charcuterie</span>
+    </div>
+    <div class="carousel-slide">
+      <img src="https://images.unsplash.com/photo-1606756790138-261d2b21cd75?w=700&q=80" alt="Conserverie">
+      <span class="slide-label">Conserverie</span>
+    </div>
+    <div class="carousel-slide">
+      <img src="https://images.unsplash.com/photo-1452195100486-9cc805987862?w=700&q=80" alt="Cheese board">
+      <span class="slide-label">Plateau Signature</span>
+    </div>
+    <div class="carousel-slide">
+      <img src="https://images.unsplash.com/photo-1559561853-08451507cbe7?w=700&q=80" alt="Jambon">
+      <span class="slide-label">Jambon de Pays</span>
+    </div>
+    <div class="carousel-slide">
+      <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=700&q=80" alt="Planche">
+      <span class="slide-label">Planche Terroir</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     NOS RAYONS
+     ============================================================ -->
+<section class="rayons" id="rayons">
+  <div class="section-header">
+    <span class="eyebrow">Notre Sélection</span>
+    <h2>Nos <em>Rayons</em></h2>
+    <div class="section-sep"></div>
+  </div>
+
+  <div class="rayons-grid">
+    <div class="rayon-card gsap-hidden">
+      <div class="rayon-img-wrap">
+        <img src="https://images.unsplash.com/photo-1486297678162-ad2a14b348d5?w=800&q=80" alt="Fromages fermiers">
+      </div>
+      <div class="rayon-body">
+        <span class="rayon-icon">🧀</span>
+        <h3>Les Fromages</h3>
+        <p>Une sélection pointue au lait cru. Des pâtes pressées d'alpage aux brebis crémeux de nos Pyrénées, chaque meule a son histoire.</p>
+        <span class="rayon-tag">Explorer le rayon</span>
+      </div>
+    </div>
+
+    <div class="rayon-card gsap-hidden">
+      <div class="rayon-img-wrap">
+        <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80" alt="Charcuterie artisanale">
+      </div>
+      <div class="rayon-body">
+        <span class="rayon-icon">🍖</span>
+        <h3>La Charcuterie</h3>
+        <p>Jambons de pays affinés, saucissons au couteau et spécialités landaises élaborées dans le respect des traditions séculaires.</p>
+        <span class="rayon-tag">Explorer le rayon</span>
+      </div>
+    </div>
+
+    <div class="rayon-card gsap-hidden">
+      <div class="rayon-img-wrap">
+        <img src="https://images.unsplash.com/photo-1606756790138-261d2b21cd75?w=800&q=80" alt="Conserverie du terroir">
+      </div>
+      <div class="rayon-body">
+        <span class="rayon-icon">🫙</span>
+        <h3>La Conserverie</h3>
+        <p>Foies gras locaux, confits, rillettes et chutneys. Des bocaux authentiques, fidèles aux recettes du terroir gascon.</p>
+        <span class="rayon-tag">Explorer le rayon</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHIFFRES
+     ============================================================ -->
+<section class="stats">
+  <div class="stat-item gsap-hidden">
+    <div class="stat-num" data-target="80">80+</div>
+    <div class="stat-label">Références Fromagères</div>
+  </div>
+  <div class="stat-item gsap-hidden">
+    <div class="stat-num" data-target="15">15+</div>
+    <div class="stat-label">Producteurs Locaux</div>
+  </div>
+  <div class="stat-item gsap-hidden">
+    <div class="stat-num">100%</div>
+    <div class="stat-label">Artisanal &amp; Sélectionné</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer id="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="f-logo">Le Comptoir à Fromage</span>
+      <span class="f-sub">Fromagerie &middot; Ondres &middot; Landes</span>
+      <p>Une épicerie fine artisanale au cœur des Landes, dédiée aux saveurs authentiques du terroir gascon et basque.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Horaires</h4>
+      <address>
+        Mar &rarr; Ven : 9h – 13h · 16h – 19h30<br>
+        Samedi : 9h – 13h30<br>
+        Dimanche matin<br>
+        Lundi : Fermé
+      </address>
+    </div>
+    <div class="footer-col">
+      <h4>Nous trouver</h4>
+      <address>
+        Avenue du 11 Novembre 1918<br>
+        40440 Ondres<br><br>
+        05 58 XX XX XX
+      </address>
+    </div>
+  </div>
+  <div class="footer-sep"></div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 Le Comptoir à Fromage &mdash; Site Démo</span>
+    <span>Ondres, Landes</span>
+  </div>
+</footer>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ========================================================
+     NAV sticky
+     ======================================================== */
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('solid', window.scrollY > 60);
+  }, { passive: true });
+
+  /* ========================================================
+     PARALLAX HERO BG
+     ======================================================== */
+  gsap.to('#hero-bg', {
+    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 2 },
+    y: '30%', ease: 'none'
+  });
+
+  /* ========================================================
+     SPLIT TEXT — titre hero lettre par lettre
+     ======================================================== */
+  const titleEl = document.getElementById('hero-title');
+  const raw = titleEl.innerText;
+  titleEl.innerHTML = '';
+  const words = raw.split(' ');
+  words.forEach((word, wi) => {
+    const wSpan = document.createElement('span');
+    wSpan.className = 'word';
+    word.split('').forEach(ch => {
+      const cSpan = document.createElement('span');
+      cSpan.className = 'char';
+      cSpan.textContent = ch;
+      wSpan.appendChild(cSpan);
+    });
+    titleEl.appendChild(wSpan);
+    if (wi < words.length - 1) {
+      const space = document.createTextNode(' ');
+      titleEl.appendChild(space);
+    }
+  });
+
+  /* ========================================================
+     HERO — TIMELINE D'ENTRÉE ORCHESTRÉE
+     ======================================================== */
+  // États initiaux explicites
+  gsap.set('#hero-eyebrow', { opacity: 0, y: 22 });
+  gsap.set('#hero-sub',     { opacity: 0, y: 22 });
+  gsap.set('#hero-btn',     { opacity: 0, y: 18 });
+  gsap.set('#hero-scroll',  { opacity: 0 });
+
+  const intro = gsap.timeline({ defaults: { ease: 'power4.out' } });
+  intro
+    .to('.char', { y: '0%', duration: 1.15, stagger: 0.028, delay: 0.2 })
+    .to('#hero-eyebrow', { opacity: 1, y: 0, duration: 0.85 }, '-=0.7')
+    .to('#hero-sub',     { opacity: 1, y: 0, duration: 0.85 }, '-=0.55')
+    .to('#hero-btn',     { opacity: 1, y: 0, duration: 0.7  }, '-=0.45')
+    .to('#hero-scroll',  { opacity: 1, duration: 0.6         }, '-=0.2');
+
+  /* ========================================================
+     MARQUEE — légère accélération au scroll
+     ======================================================== */
+  let marqueeSpeed = 30;
+  window.addEventListener('scroll', () => {
+    const track = document.getElementById('marquee-track');
+    if (track) {
+      track.style.animationDuration = '18s';
+      clearTimeout(window._marqueeTimeout);
+      window._marqueeTimeout = setTimeout(() => {
+        track.style.animationDuration = '30s';
+      }, 600);
+    }
+  }, { passive: true });
+
+  /* ========================================================
+     SECTION HISTOIRE — slide depuis les côtés
+     ======================================================== */
+  gsap.set('.story-photo', { opacity: 0, x: -80 });
+  gsap.set('.story-board', { opacity: 0, x:  80 });
+
+  gsap.to('.story-photo', {
+    scrollTrigger: { trigger: '.story', start: 'top 72%' },
+    x: 0, opacity: 1, duration: 1.35, ease: 'power3.out'
+  });
+  gsap.to('.story-board', {
+    scrollTrigger: { trigger: '.story', start: 'top 72%' },
+    x: 0, opacity: 1, duration: 1.35, ease: 'power3.out', delay: 0.18
+  });
+
+  /* ========================================================
+     CARROUSEL — parallax léger sur le fond
+     ======================================================== */
+  gsap.to('.carousel-strip', {
+    scrollTrigger: { trigger: '.carousel-strip', start: 'top bottom', end: 'bottom top', scrub: 1 },
+    backgroundPositionY: '30%'
+  });
+
+  /* ========================================================
+     SECTION RAYONS — header + cartes en stagger
+     ======================================================== */
+  gsap.set('.section-header', { opacity: 0, y: 45 });
+  gsap.to('.section-header', {
+    scrollTrigger: { trigger: '.rayons', start: 'top 78%' },
+    opacity: 1, y: 0, duration: 1.1, ease: 'power3.out'
+  });
+
+  gsap.utils.toArray('.rayon-card').forEach((card, i) => {
+    gsap.set(card, { opacity: 0, y: 65 });
+    gsap.to(card, {
+      scrollTrigger: { trigger: '.rayons-grid', start: 'top 82%' },
+      opacity: 1, y: 0, duration: 1.1, ease: 'power3.out',
+      delay: i * 0.14
+    });
+  });
+
+  /* ========================================================
+     STATS — compteur animé + fade depuis le bas
+     ======================================================== */
+  gsap.utils.toArray('.stat-item').forEach((item, i) => {
+    gsap.set(item, { opacity: 0, y: 40 });
+    gsap.to(item, {
+      scrollTrigger: { trigger: '.stats', start: 'top 82%' },
+      opacity: 1, y: 0, duration: 1, ease: 'power3.out',
+      delay: i * 0.15
+    });
+  });
+
+  /* ========================================================
+     FOOTER — fondu doux
+     ======================================================== */
+  gsap.set('footer', { opacity: 0 });
+  gsap.to('footer', {
+    scrollTrigger: { trigger: 'footer', start: 'top 88%' },
+    opacity: 1, duration: 1.2, ease: 'power2.out'
+  });
+
+</script>
+</body>
+</html>
